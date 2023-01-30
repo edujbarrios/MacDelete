@@ -103,3 +103,16 @@ done
 if [ "$backup_files" = true ] ; then
   echo "Se han realizado copias de seguridad de los archivos residuales en $backup_dir"
 fi
+
+# Excluir ciertos tipos de archivos de la eliminación
+EXCLUDE_FILE_TYPES=(".jpg" ".jpeg" ".png" ".wav" ".mp4")
+
+for dir in "${DIRECTORIES_TO_SCAN[@]}"; do
+  if [ "$show_files" = true ] ; then
+    find "$dir" -type f -mtime +$TIME_THRESHOLD -not -name "${EXCLUDE_FILE_TYPES[@]}" -print0
+  elif [ "$backup_files" = true ] ; then
+    find "$dir" -type f -mtime +$TIME_THRESHOLD -not -name "${EXCLUDE_FILE_TYPES[@]}" -exec mv {} "$backup_dir" \;
+  else
+    count=$((count + $(find "$dir" -type f -mtime +$TIME_THRESHOLD -not -name "${EXCLUDE_FILE_TYPES[@]}" -print0 | xargs -0 rm -f | wc -l)))
+  fi
+done
