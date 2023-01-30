@@ -25,6 +25,44 @@ for dir in "${DIRECTORIES_TO_SCAN[@]}"; do
   count=$((count + $(find "$dir" -type f -mtime +$TIME_THRESHOLD -print0 | xargs -0 rm -f | wc -l)))
 done
 
+# Tiempo en días para considerar un archivo residual
+if [ $# -eq 0 ]
+  then
+    TIME_THRESHOLD=30
+  else
+    TIME_THRESHOLD=$1
+fi
+
+# Mostrar archivos residuales
+show_files=false
+while getopts "ls" opt; do
+  case $opt in
+    l)
+      show_files=true
+      ;;
+    s)
+      show_files=false
+      ;;
+    \?)
+      echo "Opción inválida: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
+
+for dir in "${DIRECTORIES_TO_SCAN[@]}"; do
+  if [ "$show_files" = true ] ; then
+    find "$dir" -type f -mtime +$TIME_THRESHOLD -print0
+  else
+    count=$((count + $(find "$dir" -type f -mtime +$TIME_THRESHOLD -print0 | xargs -0 rm -f | wc -l)))
+  fi
+done
+
+if [ "$show_files" = true ] ; then
+  echo "Lista de archivos residuales:"
+fi
+
+
 # Mostrar mensaje de resumen
 if [ "$count" -eq 0 ]; then
   echo "No se encontraron archivos residuales."
