@@ -116,3 +116,30 @@ for dir in "${DIRECTORIES_TO_SCAN[@]}"; do
     count=$((count + $(find "$dir" -type f -mtime +$TIME_THRESHOLD -not -name "${EXCLUDE_FILE_TYPES[@]}" -print0 | xargs -0 rm -f | wc -l)))
   fi
 done
+
+# Mostrar espacio liberado después de la eliminación
+show_space=false
+while getopts "lbs" opt; do
+  case $opt in
+    l)
+      show_files=true
+      ;;
+    b)
+      backup_files=true
+      ;;
+    s)
+      show_space=true
+      ;;
+    \?)
+      echo "Opción inválida: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [ "$show_space" = true ] ; then
+  echo "Espacio liberado:"
+  for dir in "${DIRECTORIES_TO_SCAN[@]}"; do
+    du -sh "$dir"
+  done
+fi
