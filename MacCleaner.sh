@@ -6,7 +6,13 @@ DIRECTORIES_TO_SCAN=(
   "$HOME/Library/Containers"
   "/Library/Caches"
   "/Library/Logs"
-)
+  # Más directorios con posibles archivos residuales
+  "/System/Library/Caches"
+  "/Users/Shared/Cache"
+  "/var/log"
+  #Directorios que más uso tienen en mi caso particular
+  "$HOME/Music/Audio Music Applications/Logic/Audio Components Cache"
+  "$HOME/Library/Application Support/Google/Chrome/Default/Cache")
 
 # Tiempo en días para considerar un archivo residual
 TIME_THRESHOLD=30
