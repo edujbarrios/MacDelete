@@ -69,3 +69,37 @@ if [ "$count" -eq 0 ]; then
 else
   echo "Se han eliminado $count archivos residuales."
 fi
+
+# Hacer copia de seguridad de los archivos residuales
+backup_files=false
+while getopts "lb" opt; do
+  case $opt in
+    l)
+      show_files=true
+      ;;
+    b)
+      backup_files=true
+      ;;
+    \?)
+      echo "Opción inválida: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
+
+backup_dir="$HOME/Library/Residual Files Backup $(date +%Y-%m-%d_%H-%M-%S)"
+mkdir "$backup_dir"
+
+for dir in "${DIRECTORIES_TO_SCAN[@]}"; do
+  if [ "$show_files" = true ] ; then
+    find "$dir" -type f -mtime +$TIME_THRESHOLD -print0
+  elif [ "$backup_files" = true ] ; then
+    find "$dir" -type f -mtime +$TIME_THRESHOLD -exec mv {} "$backup_dir" \;
+  else
+    count=$((count + $(find "$dir" -type f -mtime +$TIME_THRESHOLD -print0 | xargs -0 rm -f | wc -l)))
+  fi
+done
+
+if [ "$backup_files" = true ] ; then
+  echo "Se han realizado copias de seguridad de los archivos residuales en $backup_dir"
+fi
